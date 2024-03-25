@@ -19,32 +19,65 @@ class mlx_clip:
         self.model_dir = model_dir
         self.model, self.tokenizer, self.img_processor = self.load_clip_model(model_dir)
 
-    def download_and_convert_weights(self,
-            hf_repo: str = "openai/clip-vit-base-patch32",
-            dtype: str = "float32",
-        ):
+    def download_and_convert_weights(self, hf_repo: str = "openai/clip-vit-base-patch32", dtype: str = "float32") -> str:
+        """
+        Download the pre-trained weights from Hugging Face and convert them to the appropriate format.
 
+        This method checks if the model directory already exists. If not, it will download the pre-trained
+        weights from the specified Hugging Face repository and convert them to the required format and
+        data type for the CLIP model.
 
-            mlx_path = Path(self.model_dir)
-            if not mlx_path.exists():
-                convert_weights(hf_repo, mlx_path, dtype)
+        Args:
+            hf_repo (str): The Hugging Face repository where the pre-trained CLIP weights are stored.
+            dtype (str): The data type to which the weights should be converted. Default is 'float32'.
 
-            return str(mlx_path)
+        Returns:
+            str: The path to the directory where the weights are stored after conversion.
+
+        Raises:
+            Exception: If any error occurs during the download or conversion process.
+        """
+        # Define the path to the model directory
+        mlx_path = Path(self.model_dir)
+        self.logger.debug(f"Checking if model directory {mlx_path} exists.")
+
+        # If the model directory does not exist, download and convert weights
+        if not mlx_path.exists():
+            self.logger.info(f"Model directory does not exist. Downloading and converting weights from {hf_repo}.")
+            try:
+                convert_weights(hf_repo, str(mlx_path), dtype)
+                self.logger.info("Weights downloaded and converted successfully.")
+            except Exception as e:
+                self.logger.error(f"Failed to download and convert weights: {e}")
+                raise
+
+        # Return the model directory path as a string
+        return str(mlx_path)
 
 
     def load_clip_model(self, model_dir: str) -> Tuple[CLIPModel, CLIPTokenizer, CLIPImageProcessor]:
         """
         Loads the CLIP model, tokenizer, and image processor from a given directory.
+        If the model directory does not exist or is empty, it attempts to download and convert weights.
 
         Args:
             model_dir (str): The directory where the CLIP model is stored.
 
         Returns:
             Tuple[CLIPModel, CLIPTokenizer, CLIPImageProcessor]: The loaded CLIP model, tokenizer, and image processor.
+
+        Raises:
+            FileNotFoundError: If the model directory does not exist and cannot be created.
+            Exception: If there is an issue loading any of the model components.
         """
-        if not Path(model_dir).exists():
-                self.logger.info(f"Model directory {model_dir} not found. Downloading and converting weights.")
+        model_path = Path(model_dir)
+        if not model_path.exists() or not any(model_path.iterdir()):
+            self.logger.warning(f"Model directory {model_dir} not found or is empty. Attempting to download and convert weights.")
+            try:
                 model_dir = self.download_and_convert_weights()
+            except Exception as e:
+                self.logger.error(f"Failed to download and convert weights: {e}")
+                raise FileNotFoundError(f"Model directory {model_dir} does not exist and weights could not be downloaded.")
 
         self.logger.info(f"Loading CLIP model from directory: {model_dir}")
         try:
@@ -52,21 +85,21 @@ class mlx_clip:
             self.logger.debug("CLIP model loaded successfully.")
         except Exception as e:
             self.logger.error(f"Failed to load CLIP model: {e}")
-            raise
+            raise Exception(f"Failed to load CLIP model from {model_dir}") from e
 
         try:
             tokenizer = CLIPTokenizer.from_pretrained(model_dir)
             self.logger.debug("CLIP tokenizer loaded successfully.")
         except Exception as e:
             self.logger.error(f"Failed to load CLIP tokenizer: {e}")
-            raise
+            raise Exception(f"Failed to load CLIP tokenizer from {model_dir}") from e
 
         try:
             img_processor = CLIPImageProcessor.from_pretrained(model_dir)
             self.logger.debug("CLIP image processor loaded successfully.")
         except Exception as e:
             self.logger.error(f"Failed to load CLIP image processor: {e}")
-            raise
+            raise Exception(f"Failed to load CLIP image processor from {model_dir}") from e
 
         return model, tokenizer, img_processor
 
@@ -83,7 +116,7 @@ class mlx_clip:
         try:
             # Open the image file
             image = Image.open(image_path)
-            self.logger.info(f"Image {image_path} opened successfully.")
+            self.logger.debug(f"Image {image_path} opened successfully.")
         except Exception as e:
             self.logger.error(f"Error opening image {image_path}: {e}")
             raise
@@ -91,7 +124,7 @@ class mlx_clip:
         try:
             # Preprocess the image using the provided image processor
             processed_image = self.img_processor([image])
-            self.logger.info(f"Image {image_path} processed successfully.")
+            self.logger.debug(f"Image {image_path} processed successfully.")
         except Exception as e:
             self.logger.error(f"Error processing image {image_path}: {e}")
             raise
@@ -101,7 +134,7 @@ class mlx_clip:
             inputs = {"pixel_values": processed_image}
             output = self.model(**inputs)
             image_embed = output.image_embeds
-            self.logger.info(f"Image embedding for {image_path} generated successfully.")
+            self.logger.debug(f"Image embedding for {image_path} generated successfully.")
         except Exception as e:
             self.logger.error(f"Error generating embedding for image {image_path}: {e}")
             raise
@@ -125,7 +158,7 @@ class mlx_clip:
         try:
             # Tokenize the text using the provided tokenizer
             inputs = {"input_ids": self.tokenizer([text])}
-            self.logger.info(f"Text '{text}' tokenized successfully.")
+            self.logger.debug(f"Text '{text}' tokenized successfully.")
         except Exception as e:
             self.logger.error(f"Error tokenizing text '{text}': {e}")
             raise
@@ -134,7 +167,7 @@ class mlx_clip:
             # Generate embeddings using the CLIP model
             output = self.model(**inputs)
             text_embeds = output.text_embeds
-            self.logger.info(f"Text embedding for '{text}' generated successfully.")
+            self.logger.debug(f"Text embedding for '{text}' generated successfully.")
         except Exception as e:
             self.logger.error(f"Error generating embedding for text '{text}': {e}")
             raise
