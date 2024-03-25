@@ -17,12 +17,6 @@ mlx_clip/
 ├── example.py
 ├── mlx_clip
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-312.pyc
-│   │   ├── convert.cpython-312.pyc
-│   │   ├── image_processor.cpython-312.pyc
-│   │   ├── model.cpython-312.pyc
-│   │   └── tokenizer.cpython-312.pyc
 │   ├── convert.py
 │   ├── image_processor.py
 │   ├── model.py
