@@ -1,6 +1,6 @@
 # MLX_CLIP Repository 📚🤖
 
-[![GitHub](https://img.shields.io/github/license/harperreed/mlx_clip)](https://github.com/harperreed/mlx_clip/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/license/harperreed/mlx-clip)](https://github.com/harperreed/mlx-clip/blob/main/LICENSE)
 
 This repository contains an implementation of the CLIP (Contrastive Language-Image Pre-training) model using the MLX library. CLIP is a powerful model that learns to associate images with their corresponding textual descriptions, enabling various downstream tasks such as image retrieval and zero-shot classification. 🖼️📝
 
