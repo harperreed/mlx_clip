@@ -1,9 +1,11 @@
 import logging
 from PIL import Image
 from typing import Tuple
+from pathlib import Path
 from .image_processor import CLIPImageProcessor
 from .model import CLIPModel
 from .tokenizer import CLIPTokenizer
+from .convert import convert_weights
 
 class mlx_clip:
     def __init__(self, model_dir: str):
@@ -14,7 +16,20 @@ class mlx_clip:
             model_dir (str): The directory where the CLIP model is stored.
         """
         self.logger = logging.getLogger(__name__)
+        self.model_dir = model_dir
         self.model, self.tokenizer, self.img_processor = self.load_clip_model(model_dir)
+
+    def download_and_convert_weights(self,
+            hf_repo: str = "openai/clip-vit-base-patch32",
+            dtype: str = "float32",
+        ):
+
+
+            mlx_path = Path(self.model_dir)
+            if not mlx_path.exists():
+                convert_weights(hf_repo, mlx_path, dtype)
+
+            return str(mlx_path)
 
 
     def load_clip_model(self, model_dir: str) -> Tuple[CLIPModel, CLIPTokenizer, CLIPImageProcessor]:
@@ -27,6 +42,10 @@ class mlx_clip:
         Returns:
             Tuple[CLIPModel, CLIPTokenizer, CLIPImageProcessor]: The loaded CLIP model, tokenizer, and image processor.
         """
+        if not Path(model_dir).exists():
+                self.logger.info(f"Model directory {model_dir} not found. Downloading and converting weights.")
+                model_dir = self.download_and_convert_weights()
+
         self.logger.info(f"Loading CLIP model from directory: {model_dir}")
         try:
             model = CLIPModel.from_pretrained(model_dir)
@@ -51,7 +70,7 @@ class mlx_clip:
 
         return model, tokenizer, img_processor
 
-    def generate_image_embedding(self, image_path: str):
+    def image_ecoder(self, image_path: str):
         """
         Generate an image embedding using the CLIP model.
 
@@ -90,7 +109,7 @@ class mlx_clip:
         # Return the first (and only) image embedding
         return image_embed[0].tolist()
 
-    def generate_text_embedding(self, text: str):
+    def text_encoder(self, text: str):
         """
         Generate a text embedding using the CLIP model.
 
