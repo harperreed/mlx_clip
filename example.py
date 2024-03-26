@@ -5,7 +5,7 @@ clip = mlx_clip.mlx_clip("mlx_model")
 
 # Encode the image from the specified file path and obtain the image embeddings.
 # The embeddings are a numerical representation of the image content.
-image_embeddings = clip.image_ecoder("assets/cat.jpeg")
+image_embeddings = clip.image_encoder("assets/cat.jpeg")
 # Print the image embeddings to the console.
 #print(image_embeddings)
 
