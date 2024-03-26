@@ -7,7 +7,7 @@ clip = mlx_clip.mlx_clip("mlx_model")
 # The embeddings are a numerical representation of the image content.
 image_embeddings = clip.image_ecoder("assets/cat.jpeg")
 # Print the image embeddings to the console.
-print(image_embeddings)
+#print(image_embeddings)
 
 # Encode the text description and obtain the text embeddings.
 # The embeddings are a numerical representation of the textual description.

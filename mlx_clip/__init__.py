@@ -103,7 +103,7 @@ class mlx_clip:
 
         return model, tokenizer, img_processor
 
-    def image_ecoder(self, image_path: str):
+    def image_encoder(self, image_path: str):
         """
         Generate an image embedding using the CLIP model.
 
