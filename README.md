@@ -17,7 +17,7 @@ To get started with MLX_CLIP, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/harperreed/mlx-clip.git
+   git clone https://github.com/harperreed/mlx_clip.git
    ```
 
 2. Install the required dependencies:
