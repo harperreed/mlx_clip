@@ -8,7 +8,7 @@ from .tokenizer import CLIPTokenizer
 from .convert import convert_weights
 
 class mlx_clip:
-    def __init__(self, model_dir: str):
+    def __init__(self, model_dir: str, hf_repo: str = "openai/clip-vit-base-patch32"):
         """
         Initialize the MLX_CLIP class by loading the CLIP model, tokenizer, and image processor.
 
@@ -16,6 +16,7 @@ class mlx_clip:
             model_dir (str): The directory where the CLIP model is stored.
         """
         self.logger = logging.getLogger(__name__)
+        self.hf_repo = hf_repo
         self.model_dir = model_dir
         self.model, self.tokenizer, self.img_processor = self.load_clip_model(model_dir)
 
@@ -74,7 +75,7 @@ class mlx_clip:
         if not model_path.exists() or not any(model_path.iterdir()):
             self.logger.warning(f"Model directory {model_dir} not found or is empty. Attempting to download and convert weights.")
             try:
-                model_dir = self.download_and_convert_weights()
+                model_dir = self.download_and_convert_weights(hf_repo= self.hf_repo)
             except Exception as e:
                 self.logger.error(f"Failed to download and convert weights: {e}")
                 raise FileNotFoundError(f"Model directory {model_dir} does not exist and weights could not be downloaded.")
