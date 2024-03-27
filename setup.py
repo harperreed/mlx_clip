@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='mlx_clip',
-    version='0.1',
+    version='0.2',
     packages=find_packages(),
     description='A simple package to use CLIP on apple silicon using the MLX libraries from Apple',
     long_description=open('README.md').read(),
